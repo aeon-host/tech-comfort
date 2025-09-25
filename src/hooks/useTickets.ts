@@ -16,11 +16,29 @@ export interface Ticket {
 }
 
 export const useTickets = () => {
-  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [allTickets, setAllTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
+
+  // Filter tickets based on search and filters
+  const tickets = allTickets.filter(ticket => {
+    const matchesSearch = ticket.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         ticket.detail.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
+    const matchesType = typeFilter === 'all' || ticket.type === typeFilter;
+    
+    return matchesSearch && matchesStatus && matchesType;
+  });
+
+  // Calculate stats
+  const stats = {
+    total: allTickets.length,
+    open: allTickets.filter(t => t.status === 'open').length,
+    in_progress: allTickets.filter(t => t.status === 'in_progress').length,
+    closed: allTickets.filter(t => t.status === 'closed').length,
+  };
 
   const fetchTickets = async () => {
     try {
@@ -31,7 +49,7 @@ export const useTickets = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTickets(data as Ticket[] || []);
+      setAllTickets(data as Ticket[] || []);
     } catch (error) {
       console.error('Error fetching tickets:', error);
       toast({
@@ -54,7 +72,7 @@ export const useTickets = () => {
 
       if (error) throw error;
 
-      setTickets(prev => [data as Ticket, ...prev]);
+      setAllTickets(prev => [data as Ticket, ...prev]);
       toast({
         title: "Éxito",
         description: "Ticket creado correctamente",
@@ -82,7 +100,7 @@ export const useTickets = () => {
 
       if (error) throw error;
 
-      setTickets(prev => prev.map(ticket => 
+      setAllTickets(prev => prev.map(ticket => 
         ticket.id === id ? data as Ticket : ticket
       ));
 
@@ -111,7 +129,7 @@ export const useTickets = () => {
 
       if (error) throw error;
 
-      setTickets(prev => prev.filter(ticket => ticket.id !== id));
+      setAllTickets(prev => prev.filter(ticket => ticket.id !== id));
       toast({
         title: "Éxito",
         description: "Ticket eliminado correctamente",
@@ -139,5 +157,12 @@ export const useTickets = () => {
     updateTicket,
     deleteTicket,
     refetch: fetchTickets,
+    searchTerm,
+    setSearchTerm,
+    statusFilter,
+    setStatusFilter,
+    typeFilter,
+    setTypeFilter,
+    stats,
   };
 };
