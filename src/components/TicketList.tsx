@@ -2,12 +2,26 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, Wrench, Monitor, Wifi, Settings, Edit, X, Loader2, Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar, Clock, Wrench, Monitor, Wifi, Settings, Edit, X, Loader2, Plus, Search, BarChart3, AlertCircle, Clock4, CheckCircle2 } from 'lucide-react';
 import TicketForm from './TicketForm';
+import StatsCard from './StatsCard';
 import { useTickets, Ticket } from '@/hooks/useTickets';
 
 const TicketList = () => {
-  const { tickets, loading, updateTicket } = useTickets();
+  const { 
+    tickets, 
+    loading, 
+    updateTicket, 
+    searchTerm, 
+    setSearchTerm,
+    statusFilter,
+    setStatusFilter,
+    typeFilter,
+    setTypeFilter,
+    stats
+  } = useTickets();
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -81,19 +95,90 @@ const TicketList = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Gestión de Tickets
+            Dashboard de Tickets
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
             Administra y supervisa todos los tickets de soporte técnico
           </p>
-          <Button 
-            onClick={() => setIsFormOpen(true)} 
-            size="lg"
-            className="bg-primary hover:bg-primary/90"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Crear Nuevo Ticket
-          </Button>
+        </div>
+
+        {/* Stats Dashboard */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatsCard
+            title="Total Tickets"
+            value={stats.total}
+            icon={BarChart3}
+            variant="total"
+          />
+          <StatsCard
+            title="Abiertos"
+            value={stats.open}
+            icon={AlertCircle}
+            variant="open"
+          />
+          <StatsCard
+            title="En Progreso"
+            value={stats.in_progress}
+            icon={Clock4}
+            variant="in_progress"
+          />
+          <StatsCard
+            title="Cerrados"
+            value={stats.closed}
+            icon={CheckCircle2}
+            variant="closed"
+          />
+        </div>
+
+        {/* Search and Filters */}
+        <div className="bg-card rounded-lg border p-6 mb-8">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar tickets..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Todos los estados" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los estados</SelectItem>
+                  <SelectItem value="open">Abiertos</SelectItem>
+                  <SelectItem value="in_progress">En Progreso</SelectItem>
+                  <SelectItem value="closed">Cerrados</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Todos los tipos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los tipos</SelectItem>
+                  <SelectItem value="hardware">Hardware</SelectItem>
+                  <SelectItem value="software">Software</SelectItem>
+                  <SelectItem value="network">Red</SelectItem>
+                  <SelectItem value="maintenance">Mantenimiento</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button 
+                onClick={() => setIsFormOpen(true)} 
+                size="lg"
+                className="bg-primary hover:bg-primary/90 whitespace-nowrap"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Nuevo Ticket
+              </Button>
+            </div>
+          </div>
         </div>
 
         <TicketForm 
@@ -106,44 +191,79 @@ const TicketList = () => {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <span className="ml-2 text-muted-foreground">Cargando tickets...</span>
           </div>
+        ) : tickets.length === 0 ? (
+          <div className="text-center py-12">
+            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">No hay tickets</h3>
+            <p className="text-muted-foreground mb-4">
+              {searchTerm || statusFilter !== 'all' || typeFilter !== 'all' 
+                ? 'No se encontraron tickets con los filtros aplicados.'
+                : 'Aún no hay tickets creados. Crea el primer ticket para comenzar.'
+              }
+            </p>
+            <Button onClick={() => setIsFormOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Crear Primer Ticket
+            </Button>
+          </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {tickets.map((ticket) => (
-              <Card key={ticket.id} className="hover:shadow-lg transition-shadow duration-300">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-xl font-semibold">{ticket.name}</CardTitle>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={getTypeVariant(ticket.type)}>
-                        {getTypeIcon(ticket.type)}
-                        <span className="ml-1">{getTypeLabel(ticket.type)}</span>
-                      </Badge>
-                      <Badge variant={getStatusVariant(ticket.status)}>
-                        {getStatusLabel(ticket.status)}
-                      </Badge>
-                      <Badge variant={getPriorityVariant(ticket.priority)}>
-                        {ticket.priority.toUpperCase()}
-                      </Badge>
+              <Card key={ticket.id} className="hover:shadow-lg transition-shadow duration-300 border-l-4" 
+                    style={{
+                      borderLeftColor: ticket.status === 'open' ? '#ef4444' : 
+                                     ticket.status === 'in_progress' ? '#f59e0b' : '#22c55e'
+                    }}>
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-start flex-wrap gap-4">
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-xl font-semibold text-foreground mb-2 break-words">
+                        {ticket.name}
+                      </CardTitle>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge 
+                          variant={getStatusVariant(ticket.status)}
+                          className={
+                            ticket.status === 'open' ? 'bg-red-100 text-red-800 border-red-200' :
+                            ticket.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                            'bg-green-100 text-green-800 border-green-200'
+                          }
+                        >
+                          {getStatusLabel(ticket.status)}
+                        </Badge>
+                        <Badge variant={getTypeVariant(ticket.type)} className="bg-blue-100 text-blue-800 border-blue-200">
+                          {getTypeIcon(ticket.type)}
+                          <span className="ml-1">{getTypeLabel(ticket.type)}</span>
+                        </Badge>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    <span>Inicio: {new Date(ticket.start_date).toLocaleDateString('es-ES')}</span>
+                  
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-3">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>Inicio: {new Date(ticket.start_date).toLocaleDateString('es-ES')}</span>
+                    </div>
                     {ticket.end_date && (
-                      <>
-                        <Clock className="h-4 w-4 ml-2" />
-                        <span>Fin: {new Date(ticket.end_date).toLocaleDateString('es-ES')}</span>
-                      </>
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>Término: {new Date(ticket.end_date).toLocaleDateString('es-ES')}</span>
+                      </div>
                     )}
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">{ticket.detail}</p>
-                  <div className="flex gap-2 mt-4">
+                
+                <CardContent className="pt-0">
+                  <p className="text-muted-foreground mb-6 leading-relaxed">
+                    {ticket.detail}
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-2">
                     <Button 
                       size="sm" 
                       variant="secondary"
                       onClick={() => setSelectedTicket(ticket)}
+                      className="hover:bg-secondary/80"
                     >
                       <Edit className="h-4 w-4 mr-2" />
                       Editar
@@ -153,7 +273,7 @@ const TicketList = () => {
                         size="sm" 
                         variant="outline"
                         onClick={() => handleCloseTicket(ticket.id)}
-                        className="text-destructive hover:text-destructive"
+                        className="text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
                       >
                         <X className="h-4 w-4 mr-2" />
                         Cerrar
