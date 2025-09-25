@@ -20,8 +20,9 @@ const TicketList = () => {
     setStatusFilter,
     typeFilter,
     setTypeFilter,
-    stats
+    stats: hookStats
   } = useTickets();
+  const stats = hookStats ?? { total: 0, open: 0, in_progress: 0, closed: 0 };
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
