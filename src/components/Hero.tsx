@@ -28,7 +28,7 @@ const Hero = () => {
           </h1>
           
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto leading-relaxed">
-            Gestiona y resuelve tickets de soporte de manera eficiente con nuestro sistema profesional -- prueba con curl
+            Gestiona y resuelve tickets de soporte de manera eficiente con nuestro sistema profesional -- prueba 2 con curl
           </p>
           
           {/* Stats */}
