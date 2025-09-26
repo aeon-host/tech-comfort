@@ -19,14 +19,21 @@ export const useTickets = () => {
   const [allTickets, setAllTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('active');
   const [typeFilter, setTypeFilter] = useState('all');
 
   // Filter tickets based on search and filters
   const tickets = allTickets.filter(ticket => {
     const matchesSearch = ticket.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          ticket.detail.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
+    
+    let matchesStatus = true;
+    if (statusFilter === 'active') {
+      matchesStatus = ticket.status !== 'closed';
+    } else if (statusFilter !== 'all') {
+      matchesStatus = ticket.status === statusFilter;
+    }
+    
     const matchesType = typeFilter === 'all' || ticket.type === typeFilter;
     
     return matchesSearch && matchesStatus && matchesType;

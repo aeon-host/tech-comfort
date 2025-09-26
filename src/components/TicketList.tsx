@@ -150,6 +150,7 @@ const TicketList = () => {
                   <SelectValue placeholder="Todos los estados" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="active">Tickets Activos</SelectItem>
                   <SelectItem value="all">Todos los estados</SelectItem>
                   <SelectItem value="open">Abiertos</SelectItem>
                   <SelectItem value="in_progress">En Progreso</SelectItem>
@@ -173,7 +174,7 @@ const TicketList = () => {
               <Button 
                 onClick={() => setIsFormOpen(true)} 
                 size="lg"
-                className="bg-primary hover:bg-primary/90 whitespace-nowrap"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg whitespace-nowrap"
               >
                 <Plus className="h-5 w-5 mr-2" />
                 Nuevo Ticket
@@ -194,26 +195,51 @@ const TicketList = () => {
           </div>
         ) : tickets.length === 0 ? (
           <div className="text-center py-12">
-            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">No hay tickets</h3>
-            <p className="text-muted-foreground mb-4">
-              {searchTerm || statusFilter !== 'all' || typeFilter !== 'all' 
-                ? 'No se encontraron tickets con los filtros aplicados.'
-                : 'Aún no hay tickets creados. Crea el primer ticket para comenzar.'
-              }
-            </p>
-            <Button onClick={() => setIsFormOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Crear Primer Ticket
-            </Button>
+            {statusFilter === 'active' ? (
+              <>
+                <CheckCircle2 className="h-16 w-16 text-status-closed mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-foreground mb-2">¡Bandeja limpia!</h3>
+                <p className="text-muted-foreground mb-6">
+                  Excelente trabajo. No hay tickets activos pendientes.
+                </p>
+                <div className="flex gap-4 justify-center">
+                  <Button onClick={() => setIsFormOpen(true)} className="bg-primary hover:bg-primary/90">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nuevo Ticket
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setStatusFilter('closed')}
+                    className="border-muted-foreground/20"
+                  >
+                    Ver Cerrados
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No hay tickets</h3>
+                <p className="text-muted-foreground mb-4">
+                  {searchTerm || statusFilter !== 'all' || typeFilter !== 'all' 
+                    ? 'No se encontraron tickets con los filtros aplicados.'
+                    : 'Aún no hay tickets creados. Crea el primer ticket para comenzar.'
+                  }
+                </p>
+                <Button onClick={() => setIsFormOpen(true)} className="bg-primary hover:bg-primary/90">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Crear Primer Ticket
+                </Button>
+              </>
+            )}
           </div>
         ) : (
           <div className="space-y-6">
             {tickets.map((ticket) => (
-              <Card key={ticket.id} className="hover:shadow-lg transition-shadow duration-300 border-l-4" 
+              <Card key={ticket.id} className="hover:shadow-lg transition-all duration-300 border-l-4 bg-card shadow-sm" 
                     style={{
-                      borderLeftColor: ticket.status === 'open' ? '#ef4444' : 
-                                     ticket.status === 'in_progress' ? '#f59e0b' : '#22c55e'
+                      borderLeftColor: ticket.status === 'open' ? 'hsl(var(--status-open))' : 
+                                     ticket.status === 'in_progress' ? 'hsl(var(--status-progress))' : 'hsl(var(--status-closed))'
                     }}>
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start flex-wrap gap-4">
@@ -225,14 +251,14 @@ const TicketList = () => {
                         <Badge 
                           variant={getStatusVariant(ticket.status)}
                           className={
-                            ticket.status === 'open' ? 'bg-red-100 text-red-800 border-red-200' :
-                            ticket.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
-                            'bg-green-100 text-green-800 border-green-200'
+                            ticket.status === 'open' ? 'bg-status-open/10 text-status-open border-status-open/20' :
+                            ticket.status === 'in_progress' ? 'bg-status-progress/10 text-status-progress border-status-progress/20' :
+                            'bg-status-closed/10 text-status-closed border-status-closed/20'
                           }
                         >
                           {getStatusLabel(ticket.status)}
                         </Badge>
-                        <Badge variant={getTypeVariant(ticket.type)} className="bg-blue-100 text-blue-800 border-blue-200">
+                        <Badge variant={getTypeVariant(ticket.type)} className="bg-primary/5 text-primary border-primary/20">
                           {getTypeIcon(ticket.type)}
                           <span className="ml-1">{getTypeLabel(ticket.type)}</span>
                         </Badge>
