@@ -35,9 +35,9 @@ const TicketList = () => {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'hardware': return <Wrench className="h-4 w-4" />;
-      case 'software': return <Monitor className="h-4 w-4" />;
-      case 'network': return <Wifi className="h-4 w-4" />;
+      case 'hardware': return <span className="text-lg">💻</span>;
+      case 'software': return <span className="text-lg">🖥️</span>;
+      case 'network': return <span className="text-lg">🌐</span>;
       case 'maintenance': return <Settings className="h-4 w-4" />;
       default: return <Settings className="h-4 w-4" />;
     }
@@ -198,9 +198,9 @@ const TicketList = () => {
             {statusFilter === 'active' ? (
               <>
                 <CheckCircle2 className="h-16 w-16 text-status-closed mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">¡Bandeja limpia!</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-2">No tienes tickets pendientes 🎉</h3>
                 <p className="text-muted-foreground mb-6">
-                  Excelente trabajo. No hay tickets activos pendientes.
+                  Excelente trabajo. Todos los tickets han sido completados.
                 </p>
                 <div className="flex gap-4 justify-center">
                   <Button onClick={() => setIsFormOpen(true)} className="bg-primary hover:bg-primary/90">
