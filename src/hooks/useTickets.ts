@@ -11,6 +11,7 @@ export interface Ticket {
   end_date?: string;
   status: 'open' | 'in_progress' | 'closed';
   priority: 'low' | 'medium' | 'high' | 'urgent';
+  user_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -69,11 +70,23 @@ export const useTickets = () => {
     }
   };
 
-  const createTicket = async (ticketData: Omit<Ticket, 'id' | 'created_at' | 'updated_at' | 'status'>) => {
+  const createTicket = async (ticketData: Omit<Ticket, 'id' | 'created_at' | 'updated_at' | 'status' | 'user_id'>) => {
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "Debes estar autenticado para crear tickets",
+          variant: "destructive",
+        });
+        return { success: false, error: 'Not authenticated' };
+      }
+
       const { data, error } = await supabase
         .from('tickets')
-        .insert([ticketData])
+        .insert([{ ...ticketData, user_id: user.id }])
         .select()
         .single();
 
