@@ -166,6 +166,30 @@ export const useTickets = () => {
     }
   };
 
+  const createSampleTickets = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return { success: false, error: 'Not authenticated' };
+      }
+
+      const { error } = await supabase.rpc('create_sample_tickets_for_user', {
+        target_user_id: user.id
+      });
+
+      if (error) throw error;
+
+      // Refrescar la lista de tickets después de crear los ejemplos
+      await fetchTickets();
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error creating sample tickets:', error);
+      return { success: false, error };
+    }
+  };
+
   useEffect(() => {
     fetchTickets();
   }, []);
@@ -176,6 +200,7 @@ export const useTickets = () => {
     createTicket,
     updateTicket,
     deleteTicket,
+    createSampleTickets,
     refetch: fetchTickets,
     searchTerm,
     setSearchTerm,
