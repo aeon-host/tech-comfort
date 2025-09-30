@@ -12,7 +12,6 @@ const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const { createSampleTickets } = useTickets();
 
   useEffect(() => {
     // Set up auth state listener
@@ -21,13 +20,6 @@ const Index = () => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-
-        // Crear tickets de ejemplo cuando un usuario se autentica por primera vez
-        if (event === 'SIGNED_IN' && session?.user) {
-          setTimeout(() => {
-            createSampleTickets();
-          }, 1000); // Pequeño delay para asegurar que todo esté listo
-        }
       }
     );
 
