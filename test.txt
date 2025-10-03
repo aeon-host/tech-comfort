@@ -1,5 +1,1 @@
-test test test
-__ASK_CONTENT__
-__ASK_CONTENT__
-hola desde iPhone
-hola gusanos desde iPhone
+quitar línea 4: o desde iPhone
