@@ -1,3 +1,5 @@
+Resumen del repositorio: aplicación web con frontend (src y public), configuración con Vite y Tailwind, y un archivo test.txt en la raíz.
+Contenido de test.txt:
 prueba desde iPhone
 Frase añadida por assistant.
 Agregué la línea: 'Frase añadida por assistant.'
