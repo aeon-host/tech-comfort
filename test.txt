@@ -1,15 +1,1 @@
-- Contexto: el repositorio aeon-host/tech-comfort es una app frontend (Vite/Tailwind); test.txt en main contiene actualmente "iPhone".
-- Sugerencias:
-  1) Actualizar test.txt directamente en main reemplazando la palabra por "iPhone" (commit directo).
-  2) Crear la rama feature/replace-hola, actualizar allí y esperar tu confirmación para fusionar.
-- Confirma si procedo con la opción 1 o 2.
-- Contexto: el repositorio aeon-host/tech-comfort es una app frontend (Vite/Tailwind); test.txt en main contiene actualmente "iPhone".
-- Sugerencias:
-  1) Actualizar test.txt directamente en main reemplazando la palabra por "iPhone" (commit directo).
-  2) Crear la rama feature/replace-hola, actualizar allí y esperar tu confirmación para fusionar.
-- Confirma si procedo con la opción 1 o 2.
-- Contexto: El repositorio aeon-host/tech-comfort es una app frontend (Vite/Tailwind); test.txt está en la raíz en la rama main y actualmente contiene varias líneas repetidas que mencionan "iPhone".
-- Opciones:
-  A) Hacer un commit directo a main y dejar test.txt vacío (borro todo su contenido ahora).
-  B) Crear la rama feature/clear-test-txt, dejar test.txt vacío allí y esperar tu confirmación para fusionar.
-- Confirma la opción que prefieres y si proceda a borrar todo el contenido de test.txt en main (o en la rama indicada).
+
