@@ -1,8 +1,3 @@
-Contexto: el repositorio aeon-host/tech-comfort es una aplicación frontend (Vite/Tailwind) con carpetas src y public; existe test.txt en la raíz que contiene notas y mensajes previos.
-
-Sugerencias:
-- Opción A: Reemplazar test.txt por un resumen limpio del repositorio (1–3 líneas).
-- Opción B: Limpiar test.txt eliminando mensajes de asistencia y conservar solo las líneas relevantes (p.ej. "prueba desde iPhone").
-- Opción C: Actualizar/añadir un texto específico que me indiques.
-
-¿Confirmas cuál opción aplico?
+- Contexto: el repositorio aeon-host/tech-comfort es una app frontend (Vite/Tailwind); test.txt existe en main y contiene notas previas.
+- Sugerencias: (A) Reemplazar test.txt por un resumen limpio (1–3 líneas). (B) Limpiar el archivo manteniendo solo las líneas relevantes — indícame cuáles.
+- Confírmame qué opción aplico y proporciona el texto exacto para A o las líneas a conservar para B.
