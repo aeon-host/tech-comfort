@@ -1,3 +1,6 @@
 Contexto: el repositorio aeon-host/tech-comfort es una aplicación frontend (Vite/Tailwind).
 Estado: Test.txt está en la rama main y actualmente está vacío.
 Opciones: A) Reemplazar todo el archivo por el texto que indiques; B) Escribir una sola palabra (indícala); C) Mantenerlo vacío. Confirma la opción y proporciona el texto exacto antes de que haga el cambio.
+- Contexto: test.txt está en la rama main y actualmente contiene instrucciones; solicitaste agregar la palabra "hola".
+- Sugerencias: A) Reemplazar todo test.txt por la palabra "hola" con un commit directo a main. B) Crear la rama feature/add-hola, escribir "hola" allí y esperar tu confirmación para fusionar.
+- Confirma cuál opción prefieres y procederé según tu instrucción.
