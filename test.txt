@@ -3,3 +3,8 @@
   1) Actualizar test.txt directamente en main reemplazando la palabra por "iPhone" (commit directo).
   2) Crear la rama feature/replace-hola, actualizar allí y esperar tu confirmación para fusionar.
 - Confirma si procedo con la opción 1 o 2.
+- Contexto: el repositorio aeon-host/tech-comfort es una app frontend (Vite/Tailwind); test.txt en main contiene actualmente "iPhone".
+- Sugerencias:
+  1) Actualizar test.txt directamente en main reemplazando la palabra por "iPhone" (commit directo).
+  2) Crear la rama feature/replace-hola, actualizar allí y esperar tu confirmación para fusionar.
+- Confirma si procedo con la opción 1 o 2.
