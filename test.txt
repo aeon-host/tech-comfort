@@ -1,3 +1,2 @@
-- Contexto: el repositorio aeon-host/tech-comfort es una app frontend (Vite/Tailwind); test.txt existe en main y contiene notas previas.
-- Sugerencias: (A) Reemplazar test.txt por un resumen limpio (1–3 líneas). (B) Limpiar el archivo manteniendo solo las líneas relevantes — indícame cuáles.
-- Confírmame qué opción aplico y proporciona el texto exacto para A o las líneas a conservar para B.
+He creado hola.txt en la rama feature/add-hola en la raíz del repositorio; su contenido es "Hola, mundo!".
+¿Confirmas que cree un Pull Request para fusionar feature/add-hola en main?
