@@ -4,3 +4,6 @@ Opciones: A) Reemplazar todo el archivo por el texto que indiques; B) Escribir u
 - Contexto: test.txt está en la rama main y actualmente contiene instrucciones; solicitaste agregar la palabra "hola".
 - Sugerencias: A) Reemplazar todo test.txt por la palabra "hola" con un commit directo a main. B) Crear la rama feature/add-hola, escribir "hola" allí y esperar tu confirmación para fusionar.
 - Confirma cuál opción prefieres y procederé según tu instrucción.
+- Contexto: repo aeon-host/tech-comfort — app frontend (Vite/Tailwind). test.txt está en main y actualmente vacío.
+- Sugerencias: (a) Crear la rama feature/add-hola y añadir "hola" en test.txt (recomendado, opción B); (b) Alternativa: escribir "hola" directamente en main.
+- Acción: ¿Confirmas que proceda a crear la rama feature/add-hola y añadir "hola" en test.txt?
