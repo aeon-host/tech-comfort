@@ -8,3 +8,6 @@ Resumen: el repositorio aeon-host/tech-comfort parece ser una aplicación fronte
 - Propongo crear hola.txt con el contenido "Hola, mundo!" en una nueva rama feature/add-hola y abrir un Pull Request hacia main; puedo usar otro contenido si prefieres.
 
 ¿Confirmas que proceda a crear la rama, añadir el archivo y abrir el PR?
+- Contexto: el repositorio aeon-host/tech-comfort es una aplicación frontend (Vite/Tailwind) con carpetas src y public; actualmente no existe el archivo hola.txt en la rama main.
+- Propuesta: crear una rama feature/add-hola, añadir el archivo hola.txt con el contenido "Hola, mundo!" y abrir un Pull Request hacia main.
+- ¿Confirmas que proceda a crear la rama, añadir hola.txt y abrir el PR?
