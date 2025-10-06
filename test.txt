@@ -17,3 +17,5 @@ Sugerencias:
 - Opción 2: Crear una rama feature/add-hola-hola, escribir "hola hola hola" allí y esperar tu confirmación antes de aplicar a main (recomendado).
 
 Confirma 1 o 2 para proceder (no haré cambios sin tu confirmación).
+
+hola hola hola
