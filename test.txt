@@ -1,2 +1,5 @@
 He creado hola.txt en la rama feature/add-hola en la raíz del repositorio; su contenido es "Hola, mundo!".
 ¿Confirmas que cree un Pull Request para fusionar feature/add-hola en main?
+Contexto: el archivo hola.txt está en la rama feature/add-hola y ya existe un Pull Request abierto hacia main.
+¿Confirmas que fusione (merge) ese PR ahora?
+Si prefieres editar el archivo antes de fusionar, indícame los cambios que quieres hacer.
