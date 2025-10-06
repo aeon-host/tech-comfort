@@ -1,14 +1,8 @@
-Resumen del repositorio: aplicación web con frontend (src y public), configuración con Vite y Tailwind, y un archivo test.txt en la raíz.
-Contenido de test.txt:
-prueba desde iPhone
-Frase añadida por assistant.
-Agregué la línea: 'Frase añadida por assistant.'
-Resumen: el repositorio aeon-host/tech-comfort parece ser una aplicación frontend (Vite/Tailwind) con carpetas src y public; el archivo hola.txt no existe en la rama main.
+Contexto: el repositorio aeon-host/tech-comfort es una aplicación frontend (Vite/Tailwind) con carpetas src y public; existe test.txt en la raíz que contiene notas y mensajes previos.
 
-- Propongo crear hola.txt con el contenido "Hola, mundo!" en una nueva rama feature/add-hola y abrir un Pull Request hacia main; puedo usar otro contenido si prefieres.
+Sugerencias:
+- Opción A: Reemplazar test.txt por un resumen limpio del repositorio (1–3 líneas).
+- Opción B: Limpiar test.txt eliminando mensajes de asistencia y conservar solo las líneas relevantes (p.ej. "prueba desde iPhone").
+- Opción C: Actualizar/añadir un texto específico que me indiques.
 
-¿Confirmas que proceda a crear la rama, añadir el archivo y abrir el PR?
-- Contexto: el repositorio aeon-host/tech-comfort es una aplicación frontend (Vite/Tailwind) con carpetas src y public; actualmente no existe el archivo hola.txt en la rama main.
-- Propuesta: crear una rama feature/add-hola, añadir el archivo hola.txt con el contenido "Hola, mundo!" y abrir un Pull Request hacia main.
-- ¿Confirmas que proceda a crear la rama, añadir hola.txt y abrir el PR?
-El archivo hola.txt está en la rama feature/add-hola en la raíz del repositorio; no está en la rama main. ¿Quieres que abra un Pull Request para fusionarlo a main?
+¿Confirmas cuál opción aplico?
