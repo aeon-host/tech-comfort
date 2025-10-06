@@ -1,1 +1,2 @@
 hola
+He escrito "hola" en test.txt en la rama feature/add-hola y realicé el commit ("Añadir palabra 'hola' en test.txt"). ¿Deseas que lo fusione en main?
