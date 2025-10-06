@@ -3,4 +3,8 @@ Contenido de test.txt:
 prueba desde iPhone
 Frase añadida por assistant.
 Agregué la línea: 'Frase añadida por assistant.'
+Resumen: el repositorio aeon-host/tech-comfort parece ser una aplicación frontend (Vite/Tailwind) con carpetas src y public; el archivo hola.txt no existe en la rama main.
 
+- Propongo crear hola.txt con el contenido "Hola, mundo!" en una nueva rama feature/add-hola y abrir un Pull Request hacia main; puedo usar otro contenido si prefieres.
+
+¿Confirmas que proceda a crear la rama, añadir el archivo y abrir el PR?
