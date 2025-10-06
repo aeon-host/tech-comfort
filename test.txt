@@ -1,7 +1,1 @@
-Contexto: El repositorio aeon-host/tech-comfort es una aplicación frontend (Vite/React/Tailwind). La rama feature/add-hola ya existe y quieres añadir la palabra "hola" en test.txt en esa rama.
-
-Sugerencias:
-- Escribir exactamente la palabra "hola" en test.txt dentro de la rama feature/add-hola y hacer un commit con mensaje: "Añadir palabra 'hola' en test.txt".
-- Alternativa: aplicar el cambio directamente en main en lugar de en la rama feature/add-hola.
-
-Acción: ¿Confirmas que proceda a escribir "hola" en test.txt en la rama feature/add-hola y haga el commit allí? Responde "sí" para que lo ejecute.
+hola
