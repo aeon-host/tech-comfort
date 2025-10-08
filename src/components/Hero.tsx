@@ -27,7 +27,7 @@ sistema de tickets
           </h1>
           
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto leading-relaxed">
-            Gestiona y resuelve tickets de soporte de forma eficiente con nuestro sistema profesional...TEST..con CURL
+            Gestiona y resuelve tickets de soporte de forma eficiente con nuestro sistema profesional.
           </p>
           
           {/* Stats */}
