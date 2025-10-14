@@ -1,4 +1,4 @@
-==import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { ArrowRight, Users, Clock, CheckCircle } from 'lucide-react';
 import heroImage from '@/assets/hero-support.jpg';
 
