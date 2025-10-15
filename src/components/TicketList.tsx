@@ -234,80 +234,108 @@ const TicketList = () => {
             )}
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="grid gap-4">
             {tickets.map((ticket) => (
-              <Card key={ticket.id} className="hover:shadow-lg transition-all duration-300 border-l-4 bg-card shadow-sm" 
-                    style={{
-                      borderLeftColor: ticket.status === 'open' ? 'hsl(var(--status-open))' : 
-                                     ticket.status === 'in_progress' ? 'hsl(var(--status-progress))' : 'hsl(var(--status-closed))'
-                    }}>
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start flex-wrap gap-4">
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-xl font-semibold text-foreground mb-2 break-words">
-                        {ticket.name}
-                      </CardTitle>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge 
-                          variant={getStatusVariant(ticket.status)}
-                          className={
-                            ticket.status === 'open' ? 'bg-status-open/10 text-status-open border-status-open/20' :
-                            ticket.status === 'in_progress' ? 'bg-status-progress/10 text-status-progress border-status-progress/20' :
-                            'bg-status-closed/10 text-status-closed border-status-closed/20'
-                          }
+              <Card key={ticket.id} className="hover:shadow-xl transition-all duration-300 bg-card border-border overflow-hidden group">
+                <div className="flex flex-col lg:flex-row">
+                  {/* Status indicator bar */}
+                  <div className={`w-full lg:w-2 h-2 lg:h-auto transition-all`}
+                       style={{
+                         backgroundColor: ticket.status === 'open' ? 'hsl(var(--status-open))' : 
+                                        ticket.status === 'in_progress' ? 'hsl(var(--status-progress))' : 
+                                        'hsl(var(--status-closed))'
+                       }}>
+                  </div>
+
+                  {/* Main content */}
+                  <div className="flex-1 p-6">
+                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-4">
+                      {/* Title and badges */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-xl font-semibold text-foreground mb-3 break-words group-hover:text-primary transition-colors">
+                          {ticket.name}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                          <Badge 
+                            variant={getStatusVariant(ticket.status)}
+                            className={`font-medium ${
+                              ticket.status === 'open' ? 'bg-status-open/10 text-status-open border-status-open/20' :
+                              ticket.status === 'in_progress' ? 'bg-status-progress/10 text-status-progress border-status-progress/20' :
+                              'bg-status-closed/10 text-status-closed border-status-closed/20'
+                            }`}
+                          >
+                            {getStatusLabel(ticket.status)}
+                          </Badge>
+                          <Badge variant={getTypeVariant(ticket.type)} className="bg-primary/5 text-primary border-primary/20 font-medium">
+                            {getTypeIcon(ticket.type)}
+                            <span className="ml-1">{getTypeLabel(ticket.type)}</span>
+                          </Badge>
+                          <Badge variant={getPriorityVariant(ticket.priority)} className="font-medium">
+                            {ticket.priority === 'low' ? '🟢' : ticket.priority === 'medium' ? '🟡' : ticket.priority === 'high' ? '🟠' : '🔴'}
+                            <span className="ml-1 capitalize">{ticket.priority}</span>
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex gap-2 lg:ml-4">
+                        <Button 
+                          size="sm" 
+                          variant="secondary"
+                          onClick={() => setSelectedTicket(ticket)}
+                          className="hover:bg-secondary/80"
                         >
-                          {getStatusLabel(ticket.status)}
-                        </Badge>
-                        <Badge variant={getTypeVariant(ticket.type)} className="bg-primary/5 text-primary border-primary/20">
-                          {getTypeIcon(ticket.type)}
-                          <span className="ml-1">{getTypeLabel(ticket.type)}</span>
-                        </Badge>
+                          <Edit className="h-4 w-4 lg:mr-2" />
+                          <span className="hidden lg:inline">Editar</span>
+                        </Button>
+                        {ticket.status !== 'closed' && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleCloseTicket(ticket.id)}
+                            className="text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <X className="h-4 w-4 lg:mr-2" />
+                            <span className="hidden lg:inline">Cerrar</span>
+                          </Button>
+                        )}
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-3">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      <span>Inicio: {new Date(ticket.start_date).toLocaleDateString('es-ES')}</span>
-                    </div>
-                    {ticket.end_date && (
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span>Término: {new Date(ticket.end_date).toLocaleDateString('es-ES')}</span>
+
+                    {/* Description */}
+                    <p className="text-muted-foreground mb-4 leading-relaxed line-clamp-2 lg:line-clamp-none">
+                      {ticket.detail}
+                    </p>
+
+                    {/* Metadata footer */}
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground pt-3 border-t border-border/50">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="h-4 w-4 text-primary/60" />
+                        <span className="font-medium">Creado:</span>
+                        <span>{new Date(ticket.created_at).toLocaleDateString('es-ES', { 
+                          day: '2-digit', 
+                          month: 'short', 
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}</span>
                       </div>
-                    )}
+                      {ticket.end_date && (
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="h-4 w-4 text-primary/60" />
+                          <span className="font-medium">Cerrado:</span>
+                          <span>{new Date(ticket.end_date).toLocaleDateString('es-ES', { 
+                            day: '2-digit', 
+                            month: 'short', 
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </CardHeader>
-                
-                <CardContent className="pt-0">
-                  <p className="text-muted-foreground mb-6 leading-relaxed">
-                    {ticket.detail}
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-2">
-                    <Button 
-                      size="sm" 
-                      variant="secondary"
-                      onClick={() => setSelectedTicket(ticket)}
-                      className="hover:bg-secondary/80"
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Editar
-                    </Button>
-                    {ticket.status !== 'closed' && (
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => handleCloseTicket(ticket.id)}
-                        className="text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Cerrar
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
+                </div>
               </Card>
             ))}
           </div>
