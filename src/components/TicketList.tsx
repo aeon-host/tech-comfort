@@ -1,93 +1,156 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, Wrench, Monitor, Wifi, Settings, Edit, X, Loader2, Plus, Search, BarChart3, AlertCircle, Clock4, CheckCircle2 } from 'lucide-react';
+import { useTickets } from '@/hooks/useTickets';
 import TicketForm from './TicketForm';
 import StatsCard from './StatsCard';
-import { useTickets, Ticket } from '@/hooks/useTickets';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Ticket, FolderOpen, Clock, CheckCircle, Search, Plus, AlertCircle, Loader2 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { Badge } from './ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from './ui/alert-dialog';
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import DraggableTicket from './DraggableTicket';
 
 const TicketList = () => {
-  const { 
-    tickets, 
-    loading, 
-    updateTicket, 
-    searchTerm, 
+  const {
+    tickets,
+    loading,
+    createTicket,
+    updateTicket,
+    deleteTicket,
+    refetch,
+    searchTerm,
     setSearchTerm,
     statusFilter,
     setStatusFilter,
     typeFilter,
     setTypeFilter,
-    stats: hookStats
+    stats,
   } = useTickets();
-  const stats = hookStats ?? { total: 0, open: 0, in_progress: 0, closed: 0 };
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingTicket, setEditingTicket] = useState<any>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [ticketToDelete, setTicketToDelete] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
-  const handleCloseTicket = async (ticketId: string) => {
-    await updateTicket(ticketId, { 
-      status: 'closed',
-      end_date: new Date().toISOString()
-    });
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'hardware': return <span className="text-lg">💻</span>;
-      case 'software': return <span className="text-lg">🖥️</span>;
-      case 'network': return <span className="text-lg">🌐</span>;
-      case 'maintenance': return <Settings className="h-4 w-4" />;
-      default: return <Settings className="h-4 w-4" />;
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (!over) {
+      setActiveId(null);
+      return;
+    }
+
+    const ticketId = active.id as string;
+    const newPriority = over.id as 'urgent' | 'high' | 'medium' | 'low';
+    
+    const ticket = tickets.find(t => t.id === ticketId);
+    
+    if (ticket && ticket.priority !== newPriority) {
+      try {
+        await updateTicket(ticketId, { priority: newPriority });
+        toast({
+          title: "Prioridad actualizada",
+          description: `El ticket se movió a ${newPriority}`,
+        });
+        refetch();
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "No se pudo actualizar la prioridad",
+          variant: "destructive",
+        });
+      }
+    }
+    
+    setActiveId(null);
+  };
+
+  const handleEdit = (ticket: any) => {
+    setEditingTicket(ticket);
+    setIsFormOpen(true);
+  };
+
+  const handleFormClose = () => {
+    setIsFormOpen(false);
+    setEditingTicket(null);
+  };
+
+  const handleFormSubmit = async (data: any) => {
+    try {
+      if (editingTicket) {
+        await updateTicket(editingTicket.id, data);
+        toast({
+          title: "Ticket actualizado",
+          description: "El ticket se ha actualizado correctamente.",
+        });
+      } else {
+        await createTicket(data);
+        toast({
+          title: "Ticket creado",
+          description: "El ticket se ha creado correctamente.",
+        });
+      }
+      handleFormClose();
+      refetch();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Hubo un error al guardar el ticket.",
+        variant: "destructive",
+      });
     }
   };
 
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'hardware': return 'Hardware';
-      case 'software': return 'Software';
-      case 'network': return 'Red';
-      case 'maintenance': return 'Mantenimiento';
-      default: return type;
-    }
-  };
-
-  const getTypeVariant = (type: string) => {
-    switch (type) {
-      case 'hardware': return 'destructive';
-      case 'software': return 'default';
-      case 'network': return 'secondary';
-      case 'maintenance': return 'outline';
-      default: return 'default';
-    }
-  };
-
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case 'open': return 'default';
-      case 'in_progress': return 'secondary';
-      case 'closed': return 'outline';
-      default: return 'default';
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'open': return 'Abierto';
-      case 'in_progress': return 'En progreso';
-      case 'closed': return 'Cerrado';
-      default: return status;
-    }
-  };
-
-  const getPriorityVariant = (priority: string) => {
-    switch (priority) {
-      case 'low': return 'outline';
-      case 'medium': return 'secondary';
-      case 'high': return 'default';
-      case 'urgent': return 'destructive';
-      default: return 'default';
+  const handleDeleteConfirm = async () => {
+    if (ticketToDelete) {
+      try {
+        await deleteTicket(ticketToDelete);
+        toast({
+          title: "Ticket eliminado",
+          description: "El ticket se ha eliminado correctamente.",
+        });
+        refetch();
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Hubo un error al eliminar el ticket.",
+          variant: "destructive",
+        });
+      }
+      setDeleteDialogOpen(false);
+      setTicketToDelete(null);
     }
   };
 
@@ -96,7 +159,7 @@ const TicketList = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-tickets abiertos en tiempo real
+            Tickets abiertos en tiempo real
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
             Administra y supervisa todos los tickets de soporte técnico
@@ -104,31 +167,11 @@ tickets abiertos en tiempo real
         </div>
 
         {/* Stats Dashboard */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatsCard
-            title="Total Tickets"
-            value={stats.total}
-            icon={BarChart3}
-            variant="total"
-          />
-          <StatsCard
-            title="Abiertos"
-            value={stats.open}
-            icon={AlertCircle}
-            variant="open"
-          />
-          <StatsCard
-            title="En Progreso"
-            value={stats.in_progress}
-            icon={Clock4}
-            variant="in_progress"
-          />
-          <StatsCard
-            title="Cerrados"
-            value={stats.closed}
-            icon={CheckCircle2}
-            variant="closed"
-          />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+          <StatsCard title="Total" value={stats.total} icon={Ticket} variant="total" />
+          <StatsCard title="Abiertos" value={stats.open} icon={FolderOpen} variant="open" />
+          <StatsCard title="En Progreso" value={stats.in_progress} icon={Clock} variant="in_progress" />
+          <StatsCard title="Cerrados" value={stats.closed} icon={CheckCircle} variant="closed" />
         </div>
 
         {/* Search and Filters */}
@@ -150,7 +193,6 @@ tickets abiertos en tiempo real
                   <SelectValue placeholder="Todos los estados" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Tickets Activos</SelectItem>
                   <SelectItem value="all">Todos los estados</SelectItem>
                   <SelectItem value="open">Abiertos</SelectItem>
                   <SelectItem value="in_progress">En Progreso</SelectItem>
@@ -174,7 +216,7 @@ tickets abiertos en tiempo real
               <Button 
                 onClick={() => setIsFormOpen(true)} 
                 size="lg"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg whitespace-nowrap"
+                className="whitespace-nowrap"
               >
                 <Plus className="h-5 w-5 mr-2" />
                 Nuevo Ticket
@@ -185,402 +227,113 @@ tickets abiertos en tiempo real
 
         <TicketForm 
           isOpen={isFormOpen} 
-          onClose={() => setIsFormOpen(false)}
+          onClose={handleFormClose}
+          initialData={editingTicket}
         />
 
         {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2 text-muted-foreground">Cargando tickets...</span>
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
+            <p className="text-muted-foreground">Cargando tickets...</p>
           </div>
         ) : tickets.length === 0 ? (
           <div className="text-center py-12">
-            {statusFilter === 'active' ? (
-              <>
-                <CheckCircle2 className="h-16 w-16 text-status-closed mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">No tienes tickets pendientes 🎉</h3>
-                <p className="text-muted-foreground mb-6">
-                  Excelente trabajo. Todos los tickets han sido completados.
-                </p>
-                <div className="flex gap-4 justify-center">
-                  <Button onClick={() => setIsFormOpen(true)} className="bg-primary hover:bg-primary/90">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nuevo Ticket
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setStatusFilter('closed')}
-                    className="border-muted-foreground/20"
-                  >
-                    Ver Cerrados
-                  </Button>
-                </div>
-              </>
-            ) : (
-              <>
-                <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">No hay tickets</h3>
-                <p className="text-muted-foreground mb-4">
-                  {searchTerm || statusFilter !== 'all' || typeFilter !== 'all' 
-                    ? 'No se encontraron tickets con los filtros aplicados.'
-                    : 'Aún no hay tickets creados. Crea el primer ticket para comenzar.'
-                  }
-                </p>
-                <Button onClick={() => setIsFormOpen(true)} className="bg-primary hover:bg-primary/90">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Crear Primer Ticket
-                </Button>
-              </>
-            )}
+            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">No hay tickets</h3>
+            <p className="text-muted-foreground mb-4">
+              {searchTerm || statusFilter !== 'all' || typeFilter !== 'all' 
+                ? 'No se encontraron tickets con los filtros aplicados.'
+                : 'Aún no hay tickets creados. Crea el primer ticket para comenzar.'
+              }
+            </p>
+            <Button onClick={() => setIsFormOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Crear Primer Ticket
+            </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Urgent Column */}
-            <div className="space-y-4">
-              <div className="sticky top-0 bg-background/95 backdrop-blur-sm pb-3 border-b-2 border-destructive">
-                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  🔴 Urgente
-                  <Badge variant="destructive" className="ml-auto">
-                    {tickets.filter(t => t.priority === 'urgent').length}
-                  </Badge>
-                </h3>
-              </div>
-              {tickets.filter(t => t.priority === 'urgent').map((ticket) => (
-                <Card key={ticket.id} className="hover:shadow-xl transition-all duration-300 bg-card border-border overflow-hidden group">
-                  <div className="flex flex-col">
-                    <div className={`w-full h-2 transition-all bg-destructive`}></div>
-                    <div className="p-4">
-                      <div className="mb-3">
-                        <h3 className="text-base font-semibold text-foreground mb-2 break-words group-hover:text-primary transition-colors line-clamp-2">
-                          {ticket.name}
+          <DndContext
+            sensors={sensors}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {(['urgent', 'high', 'medium', 'low'] as const).map((priority) => {
+                const priorityTickets = tickets.filter(ticket => ticket.priority === priority);
+                const priorityLabels = {
+                  urgent: { label: 'Urgente', emoji: '🔴' },
+                  high: { label: 'Alta', emoji: '🟠' },
+                  medium: { label: 'Media', emoji: 'đŸŸĄ' },
+                  low: { label: 'Baja', emoji: '🟢' }
+                };
+
+                return (
+                  <div
+                    key={priority}
+                    id={priority}
+                    className="flex flex-col"
+                  >
+                    <div className="bg-muted/50 rounded-t-lg p-4 sticky top-16 z-10 border-b">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <span>{priorityLabels[priority].emoji}</span>
+                          <span>{priorityLabels[priority].label}</span>
                         </h3>
-                        <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                          <Badge 
-                            variant={getStatusVariant(ticket.status)}
-                            className={`text-xs ${
-                              ticket.status === 'open' ? 'bg-status-open/10 text-status-open border-status-open/20' :
-                              ticket.status === 'in_progress' ? 'bg-status-progress/10 text-status-progress border-status-progress/20' :
-                              'bg-status-closed/10 text-status-closed border-status-closed/20'
-                            }`}
-                          >
-                            {getStatusLabel(ticket.status)}
-                          </Badge>
-                          <Badge variant={getTypeVariant(ticket.type)} className="bg-primary/5 text-primary border-primary/20 text-xs">
-                            {getTypeIcon(ticket.type)}
-                            <span className="ml-1">{getTypeLabel(ticket.type)}</span>
-                          </Badge>
-                        </div>
-                      </div>
-
-                      <p className="text-sm text-muted-foreground mb-3 leading-relaxed line-clamp-2">
-                        {ticket.detail}
-                      </p>
-
-                      <div className="flex flex-col gap-2 text-xs text-muted-foreground pt-2 border-t border-border/50">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3 text-primary/60" />
-                          <span>{new Date(ticket.created_at).toLocaleDateString('es-ES', { 
-                            day: '2-digit', 
-                            month: 'short'
-                          })}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-1.5 mt-3">
-                        <Button 
-                          size="sm" 
-                          variant="secondary"
-                          onClick={() => setSelectedTicket(ticket)}
-                          className="flex-1 h-8 text-xs"
-                        >
-                          <Edit className="h-3 w-3 mr-1" />
-                          Editar
-                        </Button>
-                        {ticket.status !== 'closed' && (
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleCloseTicket(ticket.id)}
-                            className="flex-1 h-8 text-xs text-destructive border-destructive/20 hover:bg-destructive/10"
-                          >
-                            <X className="h-3 w-3 mr-1" />
-                            Cerrar
-                          </Button>
-                        )}
+                        <Badge variant="secondary">{priorityTickets.length}</Badge>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
-              {tickets.filter(t => t.priority === 'urgent').length === 0 && (
-                <div className="text-center py-8 text-muted-foreground text-sm">
-                  No hay tickets urgentes
-                </div>
-              )}
-            </div>
-
-            {/* High Column */}
-            <div className="space-y-4">
-              <div className="sticky top-0 bg-background/95 backdrop-blur-sm pb-3 border-b-2 border-orange-500">
-                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  🟠 Alta
-                  <Badge variant="default" className="ml-auto bg-orange-500/10 text-orange-500 border-orange-500/20">
-                    {tickets.filter(t => t.priority === 'high').length}
-                  </Badge>
-                </h3>
-              </div>
-              {tickets.filter(t => t.priority === 'high').map((ticket) => (
-                <Card key={ticket.id} className="hover:shadow-xl transition-all duration-300 bg-card border-border overflow-hidden group">
-                  <div className="flex flex-col">
-                    <div className={`w-full h-2 transition-all bg-orange-500`}></div>
-                    <div className="p-4">
-                      <div className="mb-3">
-                        <h3 className="text-base font-semibold text-foreground mb-2 break-words group-hover:text-primary transition-colors line-clamp-2">
-                          {ticket.name}
-                        </h3>
-                        <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                          <Badge 
-                            variant={getStatusVariant(ticket.status)}
-                            className={`text-xs ${
-                              ticket.status === 'open' ? 'bg-status-open/10 text-status-open border-status-open/20' :
-                              ticket.status === 'in_progress' ? 'bg-status-progress/10 text-status-progress border-status-progress/20' :
-                              'bg-status-closed/10 text-status-closed border-status-closed/20'
-                            }`}
-                          >
-                            {getStatusLabel(ticket.status)}
-                          </Badge>
-                          <Badge variant={getTypeVariant(ticket.type)} className="bg-primary/5 text-primary border-primary/20 text-xs">
-                            {getTypeIcon(ticket.type)}
-                            <span className="ml-1">{getTypeLabel(ticket.type)}</span>
-                          </Badge>
-                        </div>
-                      </div>
-
-                      <p className="text-sm text-muted-foreground mb-3 leading-relaxed line-clamp-2">
-                        {ticket.detail}
-                      </p>
-
-                      <div className="flex flex-col gap-2 text-xs text-muted-foreground pt-2 border-t border-border/50">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3 text-primary/60" />
-                          <span>{new Date(ticket.created_at).toLocaleDateString('es-ES', { 
-                            day: '2-digit', 
-                            month: 'short'
-                          })}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-1.5 mt-3">
-                        <Button 
-                          size="sm" 
-                          variant="secondary"
-                          onClick={() => setSelectedTicket(ticket)}
-                          className="flex-1 h-8 text-xs"
-                        >
-                          <Edit className="h-3 w-3 mr-1" />
-                          Editar
-                        </Button>
-                        {ticket.status !== 'closed' && (
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleCloseTicket(ticket.id)}
-                            className="flex-1 h-8 text-xs text-destructive border-destructive/20 hover:bg-destructive/10"
-                          >
-                            <X className="h-3 w-3 mr-1" />
-                            Cerrar
-                          </Button>
-                        )}
-                      </div>
+                    
+                    <div className="flex-1 space-y-4 p-4 bg-muted/20 rounded-b-lg min-h-[400px]">
+                      {priorityTickets.length === 0 ? (
+                        <p className="text-sm text-muted-foreground text-center py-8">
+                          No hay tickets
+                        </p>
+                      ) : (
+                        priorityTickets.map((ticket) => (
+                          <DraggableTicket
+                            key={ticket.id}
+                            ticket={ticket}
+                            onEdit={handleEdit}
+                            onDelete={(id) => {
+                              setTicketToDelete(id);
+                              setDeleteDialogOpen(true);
+                            }}
+                          />
+                        ))
+                      )}
                     </div>
                   </div>
-                </Card>
-              ))}
-              {tickets.filter(t => t.priority === 'high').length === 0 && (
-                <div className="text-center py-8 text-muted-foreground text-sm">
-                  No hay tickets de prioridad alta
-                </div>
-              )}
+                );
+              })}
             </div>
-
-            {/* Medium Column */}
-            <div className="space-y-4">
-              <div className="sticky top-0 bg-background/95 backdrop-blur-sm pb-3 border-b-2 border-yellow-500">
-                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  🟡 Media
-                  <Badge variant="secondary" className="ml-auto">
-                    {tickets.filter(t => t.priority === 'medium').length}
-                  </Badge>
-                </h3>
-              </div>
-              {tickets.filter(t => t.priority === 'medium').map((ticket) => (
-                <Card key={ticket.id} className="hover:shadow-xl transition-all duration-300 bg-card border-border overflow-hidden group">
-                  <div className="flex flex-col">
-                    <div className={`w-full h-2 transition-all bg-yellow-500`}></div>
-                    <div className="p-4">
-                      <div className="mb-3">
-                        <h3 className="text-base font-semibold text-foreground mb-2 break-words group-hover:text-primary transition-colors line-clamp-2">
-                          {ticket.name}
-                        </h3>
-                        <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                          <Badge 
-                            variant={getStatusVariant(ticket.status)}
-                            className={`text-xs ${
-                              ticket.status === 'open' ? 'bg-status-open/10 text-status-open border-status-open/20' :
-                              ticket.status === 'in_progress' ? 'bg-status-progress/10 text-status-progress border-status-progress/20' :
-                              'bg-status-closed/10 text-status-closed border-status-closed/20'
-                            }`}
-                          >
-                            {getStatusLabel(ticket.status)}
-                          </Badge>
-                          <Badge variant={getTypeVariant(ticket.type)} className="bg-primary/5 text-primary border-primary/20 text-xs">
-                            {getTypeIcon(ticket.type)}
-                            <span className="ml-1">{getTypeLabel(ticket.type)}</span>
-                          </Badge>
-                        </div>
-                      </div>
-
-                      <p className="text-sm text-muted-foreground mb-3 leading-relaxed line-clamp-2">
-                        {ticket.detail}
-                      </p>
-
-                      <div className="flex flex-col gap-2 text-xs text-muted-foreground pt-2 border-t border-border/50">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3 text-primary/60" />
-                          <span>{new Date(ticket.created_at).toLocaleDateString('es-ES', { 
-                            day: '2-digit', 
-                            month: 'short'
-                          })}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-1.5 mt-3">
-                        <Button 
-                          size="sm" 
-                          variant="secondary"
-                          onClick={() => setSelectedTicket(ticket)}
-                          className="flex-1 h-8 text-xs"
-                        >
-                          <Edit className="h-3 w-3 mr-1" />
-                          Editar
-                        </Button>
-                        {ticket.status !== 'closed' && (
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleCloseTicket(ticket.id)}
-                            className="flex-1 h-8 text-xs text-destructive border-destructive/20 hover:bg-destructive/10"
-                          >
-                            <X className="h-3 w-3 mr-1" />
-                            Cerrar
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-              {tickets.filter(t => t.priority === 'medium').length === 0 && (
-                <div className="text-center py-8 text-muted-foreground text-sm">
-                  No hay tickets de prioridad media
+            
+            <DragOverlay>
+              {activeId ? (
+                <div className="bg-card rounded-lg border shadow-lg p-4 opacity-90 rotate-3 scale-105">
+                  <p className="text-sm font-semibold">Moviendo ticket...</p>
                 </div>
-              )}
-            </div>
-
-            {/* Low Column */}
-            <div className="space-y-4">
-              <div className="sticky top-0 bg-background/95 backdrop-blur-sm pb-3 border-b-2 border-green-500">
-                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  🟢 Baja
-                  <Badge variant="outline" className="ml-auto">
-                    {tickets.filter(t => t.priority === 'low').length}
-                  </Badge>
-                </h3>
-              </div>
-              {tickets.filter(t => t.priority === 'low').map((ticket) => (
-                <Card key={ticket.id} className="hover:shadow-xl transition-all duration-300 bg-card border-border overflow-hidden group">
-                  <div className="flex flex-col">
-                    <div className={`w-full h-2 transition-all bg-green-500`}></div>
-                    <div className="p-4">
-                      <div className="mb-3">
-                        <h3 className="text-base font-semibold text-foreground mb-2 break-words group-hover:text-primary transition-colors line-clamp-2">
-                          {ticket.name}
-                        </h3>
-                        <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                          <Badge 
-                            variant={getStatusVariant(ticket.status)}
-                            className={`text-xs ${
-                              ticket.status === 'open' ? 'bg-status-open/10 text-status-open border-status-open/20' :
-                              ticket.status === 'in_progress' ? 'bg-status-progress/10 text-status-progress border-status-progress/20' :
-                              'bg-status-closed/10 text-status-closed border-status-closed/20'
-                            }`}
-                          >
-                            {getStatusLabel(ticket.status)}
-                          </Badge>
-                          <Badge variant={getTypeVariant(ticket.type)} className="bg-primary/5 text-primary border-primary/20 text-xs">
-                            {getTypeIcon(ticket.type)}
-                            <span className="ml-1">{getTypeLabel(ticket.type)}</span>
-                          </Badge>
-                        </div>
-                      </div>
-
-                      <p className="text-sm text-muted-foreground mb-3 leading-relaxed line-clamp-2">
-                        {ticket.detail}
-                      </p>
-
-                      <div className="flex flex-col gap-2 text-xs text-muted-foreground pt-2 border-t border-border/50">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3 text-primary/60" />
-                          <span>{new Date(ticket.created_at).toLocaleDateString('es-ES', { 
-                            day: '2-digit', 
-                            month: 'short'
-                          })}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-1.5 mt-3">
-                        <Button 
-                          size="sm" 
-                          variant="secondary"
-                          onClick={() => setSelectedTicket(ticket)}
-                          className="flex-1 h-8 text-xs"
-                        >
-                          <Edit className="h-3 w-3 mr-1" />
-                          Editar
-                        </Button>
-                        {ticket.status !== 'closed' && (
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleCloseTicket(ticket.id)}
-                            className="flex-1 h-8 text-xs text-destructive border-destructive/20 hover:bg-destructive/10"
-                          >
-                            <X className="h-3 w-3 mr-1" />
-                            Cerrar
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-              {tickets.filter(t => t.priority === 'low').length === 0 && (
-                <div className="text-center py-8 text-muted-foreground text-sm">
-                  No hay tickets de prioridad baja
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {selectedTicket && (
-          <TicketForm 
-            isOpen={!!selectedTicket}
-            onClose={() => setSelectedTicket(null)}
-            initialData={selectedTicket}
-          />
+              ) : null}
+            </DragOverlay>
+          </DndContext>
         )}
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. El ticket será eliminado permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 };

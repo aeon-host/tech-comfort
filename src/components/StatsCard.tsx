@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { LucideIcon } from 'lucide-react';
 
 interface StatsCardProps {
@@ -13,30 +12,26 @@ const StatsCard = ({ title, value, icon: Icon, variant }: StatsCardProps) => {
   const getVariantStyles = () => {
     switch (variant) {
       case 'total':
-        return 'text-primary border-primary/20 bg-primary/5';
+        return 'bg-primary/10 text-primary';
       case 'open':
-        return 'text-destructive border-destructive/20 bg-destructive/5';
+        return 'bg-destructive/10 text-destructive';
       case 'in_progress':
-        return 'text-amber-600 border-amber-600/20 bg-amber-600/5';
+        return 'bg-amber-500/10 text-amber-600';
       case 'closed':
-        return 'text-green-600 border-green-600/20 bg-green-600/5';
+        return 'bg-green-500/10 text-green-600';
       default:
-        return 'text-primary border-primary/20 bg-primary/5';
+        return 'bg-primary/10 text-primary';
     }
   };
 
   return (
-    <Card className={`border-2 ${getVariantStyles()}`}>
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-3xl font-bold mt-2">{value}</p>
-          </div>
-          <Icon className="h-8 w-8 opacity-70" />
-        </div>
-      </CardContent>
-    </Card>
+    <div className={`rounded-lg p-4 flex items-center gap-4 ${getVariantStyles()}`}>
+      <Icon className="h-6 w-6" />
+      <div>
+        <p className="text-2xl font-bold">{value}</p>
+        <p className="text-xs opacity-80">{title}</p>
+      </div>
+    </div>
   );
 };
 
