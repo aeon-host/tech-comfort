@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDraggable, useDroppable } from '@dnd-kit/core';
+import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -16,10 +16,9 @@ interface DraggableTicketProps {
 const DraggableTicket = ({ ticket, onEdit, onDelete }: DraggableTicketProps) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: ticket.id,
-  });
-
-  const { setNodeRef: setDropRef } = useDroppable({
-    id: ticket.priority,
+    data: {
+      ticket,
+    },
   });
 
   const style = {

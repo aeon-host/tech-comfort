@@ -28,6 +28,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import DraggableTicket from './DraggableTicket';
+import DroppableColumn from './DroppableColumn';
 
 const TicketList = () => {
   const {
@@ -263,46 +264,23 @@ const TicketList = () => {
                 const priorityLabels = {
                   urgent: { label: 'Urgente', emoji: '🔴' },
                   high: { label: 'Alta', emoji: '🟠' },
-                  medium: { label: 'Media', emoji: 'đŸŸĄ' },
+                  medium: { label: 'Media', emoji: '🟡' },
                   low: { label: 'Baja', emoji: '🟢' }
                 };
 
                 return (
-                  <div
+                  <DroppableColumn
                     key={priority}
-                    id={priority}
-                    className="flex flex-col"
-                  >
-                    <div className="bg-muted/50 rounded-t-lg p-4 sticky top-16 z-10 border-b">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold flex items-center gap-2">
-                          <span>{priorityLabels[priority].emoji}</span>
-                          <span>{priorityLabels[priority].label}</span>
-                        </h3>
-                        <Badge variant="secondary">{priorityTickets.length}</Badge>
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1 space-y-4 p-4 bg-muted/20 rounded-b-lg min-h-[400px]">
-                      {priorityTickets.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-8">
-                          No hay tickets
-                        </p>
-                      ) : (
-                        priorityTickets.map((ticket) => (
-                          <DraggableTicket
-                            key={ticket.id}
-                            ticket={ticket}
-                            onEdit={handleEdit}
-                            onDelete={(id) => {
-                              setTicketToDelete(id);
-                              setDeleteDialogOpen(true);
-                            }}
-                          />
-                        ))
-                      )}
-                    </div>
-                  </div>
+                    priority={priority}
+                    label={priorityLabels[priority].label}
+                    emoji={priorityLabels[priority].emoji}
+                    tickets={priorityTickets}
+                    onEdit={handleEdit}
+                    onDelete={(id) => {
+                      setTicketToDelete(id);
+                      setDeleteDialogOpen(true);
+                    }}
+                  />
                 );
               })}
             </div>
