@@ -74,22 +74,22 @@ const TicketList = () => {
     }
 
     const ticketId = active.id as string;
-    const newPriority = over.id as 'urgent' | 'high' | 'medium' | 'low';
+    const newStatus = over.id as 'open' | 'in_progress' | 'closed';
     
     const ticket = tickets.find(t => t.id === ticketId);
     
-    if (ticket && ticket.priority !== newPriority) {
+    if (ticket && ticket.status !== newStatus) {
       try {
-        await updateTicket(ticketId, { priority: newPriority });
+        await updateTicket(ticketId, { status: newStatus });
         toast({
-          title: "Prioridad actualizada",
-          description: `El ticket se movió a ${newPriority}`,
+          title: "Estado actualizado",
+          description: `El ticket se movió a ${newStatus === 'open' ? 'Abiertos' : newStatus === 'in_progress' ? 'En Progreso' : 'Cerrados'}`,
         });
         refetch();
       } catch (error) {
         toast({
           title: "Error",
-          description: "No se pudo actualizar la prioridad",
+          description: "No se pudo actualizar el estado",
           variant: "destructive",
         });
       }
@@ -169,10 +169,34 @@ const TicketList = () => {
 
         {/* Stats Dashboard */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-          <StatsCard title="Total" value={stats.total} icon={Ticket} variant="total" />
-          <StatsCard title="Abiertos" value={stats.open} icon={FolderOpen} variant="open" />
-          <StatsCard title="En Progreso" value={stats.in_progress} icon={Clock} variant="in_progress" />
-          <StatsCard title="Cerrados" value={stats.closed} icon={CheckCircle} variant="closed" />
+          <StatsCard 
+            title="Total" 
+            value={stats.total} 
+            icon={Ticket} 
+            variant="total" 
+            onClick={() => setStatusFilter('all')}
+          />
+          <StatsCard 
+            title="Abiertos" 
+            value={stats.open} 
+            icon={FolderOpen} 
+            variant="open" 
+            onClick={() => setStatusFilter('open')}
+          />
+          <StatsCard 
+            title="En Progreso" 
+            value={stats.in_progress} 
+            icon={Clock} 
+            variant="in_progress" 
+            onClick={() => setStatusFilter('in_progress')}
+          />
+          <StatsCard 
+            title="Cerrados" 
+            value={stats.closed} 
+            icon={CheckCircle} 
+            variant="closed" 
+            onClick={() => setStatusFilter('closed')}
+          />
         </div>
 
         {/* Search and Filters */}
@@ -258,23 +282,29 @@ const TicketList = () => {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {(['urgent', 'high', 'medium', 'low'] as const).map((priority) => {
-                const priorityTickets = tickets.filter(ticket => ticket.priority === priority);
-                const priorityLabels = {
-                  urgent: { label: 'Urgente', emoji: '🔴' },
-                  high: { label: 'Alta', emoji: '🟠' },
-                  medium: { label: 'Media', emoji: '🟡' },
-                  low: { label: 'Baja', emoji: '🟢' }
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {(['open', 'in_progress', 'closed'] as const).map((status) => {
+                const statusTickets = tickets
+                  .filter(ticket => ticket.status === status)
+                  .sort((a, b) => {
+                    const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
+                    return priorityOrder[a.priority as keyof typeof priorityOrder] - 
+                           priorityOrder[b.priority as keyof typeof priorityOrder];
+                  });
+                
+                const statusLabels = {
+                  open: { label: 'Abiertos', emoji: '📂' },
+                  in_progress: { label: 'En Progreso', emoji: '⏳' },
+                  closed: { label: 'Cerrados', emoji: '✅' }
                 };
 
                 return (
                   <DroppableColumn
-                    key={priority}
-                    priority={priority}
-                    label={priorityLabels[priority].label}
-                    emoji={priorityLabels[priority].emoji}
-                    tickets={priorityTickets}
+                    key={status}
+                    priority={status}
+                    label={statusLabels[status].label}
+                    emoji={statusLabels[status].emoji}
+                    tickets={statusTickets}
                     onEdit={handleEdit}
                     onDelete={(id) => {
                       setTicketToDelete(id);

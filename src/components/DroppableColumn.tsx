@@ -4,7 +4,7 @@ import { Badge } from './ui/badge';
 import DraggableTicket from './DraggableTicket';
 
 interface DroppableColumnProps {
-  priority: 'urgent' | 'high' | 'medium' | 'low';
+  priority: string;
   label: string;
   emoji: string;
   tickets: any[];

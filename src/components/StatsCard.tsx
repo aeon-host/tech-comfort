@@ -6,9 +6,10 @@ interface StatsCardProps {
   value: number;
   icon: LucideIcon;
   variant: 'total' | 'open' | 'in_progress' | 'closed';
+  onClick?: () => void;
 }
 
-const StatsCard = ({ title, value, icon: Icon, variant }: StatsCardProps) => {
+const StatsCard = ({ title, value, icon: Icon, variant, onClick }: StatsCardProps) => {
   const getVariantStyles = () => {
     switch (variant) {
       case 'total':
@@ -25,7 +26,10 @@ const StatsCard = ({ title, value, icon: Icon, variant }: StatsCardProps) => {
   };
 
   return (
-    <div className={`rounded-lg p-4 flex items-center gap-4 ${getVariantStyles()}`}>
+    <div 
+      className={`rounded-lg p-4 flex items-center gap-4 transition-all hover:shadow-lg ${getVariantStyles()} ${onClick ? 'cursor-pointer hover:scale-105' : ''}`}
+      onClick={onClick}
+    >
       <Icon className="h-6 w-6" />
       <div>
         <p className="text-2xl font-bold">{value}</p>
