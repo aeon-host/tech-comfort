@@ -34,10 +34,11 @@ const DraggableTicket = ({ ticket, onEdit, onDelete }: DraggableTicketProps) => 
       {...attributes}
       className="bg-card rounded-lg border shadow-sm hover:shadow-md transition-all overflow-hidden group cursor-grab active:cursor-grabbing"
     >
-      {/* Status indicator bar */}
+      {/* Priority indicator bar */}
       <div className={`h-1 ${
-        ticket.status === 'open' ? 'bg-destructive' :
-        ticket.status === 'in_progress' ? 'bg-amber-500' :
+        ticket.priority === 'urgent' ? 'bg-red-500' :
+        ticket.priority === 'high' ? 'bg-orange-500' :
+        ticket.priority === 'medium' ? 'bg-yellow-500' :
         'bg-green-500'
       }`} />
       
@@ -45,17 +46,23 @@ const DraggableTicket = ({ ticket, onEdit, onDelete }: DraggableTicketProps) => 
         {/* Header with badges */}
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-wrap gap-2">
-            <Badge variant={
-              ticket.status === 'open' ? 'destructive' :
-              ticket.status === 'in_progress' ? 'default' :
-              'secondary'
-            } className="text-xs">
-              {ticket.status === 'open' ? 'Abierto' :
-               ticket.status === 'in_progress' ? 'En Progreso' :
-               'Cerrado'}
+            <Badge className={`text-xs font-semibold border ${
+              ticket.priority === 'urgent' ? 'bg-red-500/20 text-red-700 border-red-500/50' :
+              ticket.priority === 'high' ? 'bg-orange-500/20 text-orange-700 border-orange-500/50' :
+              ticket.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-700 border-yellow-500/50' :
+              'bg-green-500/20 text-green-700 border-green-500/50'
+            }`}>
+              {ticket.priority === 'urgent' ? '🔴 Urgente' :
+               ticket.priority === 'high' ? '🟠 Alta' :
+               ticket.priority === 'medium' ? '🟡 Media' :
+               '🟢 Baja'}
             </Badge>
             <Badge variant="outline" className="text-xs">
-              {ticket.type}
+              {ticket.type === 'hardware' ? 'Hardware' :
+               ticket.type === 'software' ? 'Software' :
+               ticket.type === 'network' ? 'Red' :
+               ticket.type === 'maintenance' ? 'Mantenimiento' :
+               ticket.type}
             </Badge>
           </div>
         </div>
