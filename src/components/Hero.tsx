@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Users, Clock, CheckCircle } from 'lucide-react';
-import heroImage from '@/assets/hero-support-professional.jpg';
+import heroImage from '@/assets/hero-support.jpg';
 
 const Hero = () => {
   const scrollToTickets = () => {
