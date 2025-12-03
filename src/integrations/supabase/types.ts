@@ -100,10 +100,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_global_sample_tickets: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      create_global_sample_tickets: { Args: never; Returns: undefined }
       create_sample_tickets_for_user: {
         Args: { target_user_id: string }
         Returns: undefined
