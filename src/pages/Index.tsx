@@ -34,8 +34,11 @@ const Index = () => {
   }, []);
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    // Always clear local state, even if there's an error (session might already be invalid on server)
+    setSession(null);
+    setUser(null);
+    if (error && !error.message.includes('session_not_found')) {
       toast({
         title: "Error",
         description: error.message,
