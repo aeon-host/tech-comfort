@@ -96,7 +96,7 @@ const TicketList = () => {
     }
     
     setActiveId(null);
-  };
+<h2>subtítulo</h2>
 
   const handleEdit = (ticket: any) => {
     setEditingTicket(ticket);
