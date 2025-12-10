@@ -160,7 +160,7 @@ const TicketList = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            <h2>subtítulo a modificar</h2>
+            <h2>detalle de tickets abiertos</h2>
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
             Administra y supervisa todos los tickets de soporte técnico
